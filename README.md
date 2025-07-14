@@ -1,13 +1,10 @@
-# Funnel Drop-off & Retention Cohort Analysis
+#Funnel Drop-off & Retention Cohort Analysis
 
-## 🎯 Objective:
-Analyze fintech user behavior after sign-up. Identify where users drop off in the onboarding journey and study long-term retention patterns.
+#Objective: Analyze fintech user behavior after sign-up. Identify where users drop off in the onboarding journey and study long-term retention patterns.
 
----
+# SQL Funnel Breakdown
 
-## 🛠️ SQL Funnel Breakdown
-
-### Events Tracked:
+# Events Tracked:
 - Step 1: `account_created`
 - Step 2: `kyc_done`
 - Step 3: `first_transaction`
