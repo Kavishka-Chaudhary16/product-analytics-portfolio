@@ -29,3 +29,12 @@ INSERT INTO users (user_id, variant, sign_up_complete) VALUES
 (18, 'B', TRUE),
 (19, 'B', TRUE),
 (20, 'B', TRUE);
+
+--CONVERSION RATE BY VARIANT
+SELECT 
+  variant,
+  COUNT(CASE WHEN sign_up_complete = TRUE THEN 1 END) AS conversions,
+  COUNT(*) AS total_users,
+  ROUND(COUNT(CASE WHEN sign_up_complete = TRUE THEN 1 END) * 100.0 / COUNT(*), 2) AS conversion_rate_percent
+FROM users
+GROUP BY variant;
