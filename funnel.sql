@@ -1,11 +1,11 @@
--- Step 1: Create user_events table
+-- Create user_events table
 CREATE TABLE user_events (
   user_id INT,
   event_name VARCHAR(50),
   event_time TIMESTAMP
 );
 
--- Step 2: Insert event data (simulated)
+-- Insert event data (simulated)
 INSERT INTO user_events (user_id, event_name, event_time) VALUES
 (1, 'account_created', '2024-01-01 10:00:00'),
 (1, 'kyc_done', '2024-01-01 11:00:00'),
@@ -18,7 +18,7 @@ INSERT INTO user_events (user_id, event_name, event_time) VALUES
 (4, 'first_transaction', '2024-01-02 09:30:00'),
 (5, 'account_created', '2024-01-02 10:00:00');
 
--- Step 3: Funnel Drop-off Summary
+-- Funnel Drop-off Summary
 SELECT
   COUNT(DISTINCT CASE WHEN event_name = 'account_created' THEN user_id END) AS step_1_account_created,
   COUNT(DISTINCT CASE WHEN event_name = 'kyc_done' THEN user_id END) AS step_2_kyc_done,
