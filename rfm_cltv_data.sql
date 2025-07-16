@@ -49,6 +49,102 @@ INSERT INTO orders (order_id, customer_id, order_date, order_amount) VALUES
 (120, 10, '2024-06-20', 2200.00);
 
 
----SQL QUERY
+---SQL QUERY:View Raw RFM Metrics Only
 
-SELECT * FROM customers;
+SELECT
+  c.customer_id,
+  c.name,
+  DATEDIFF('2024-07-01', MAX(o.order_date)) AS recency_days,
+  COUNT(o.order_id) AS frequency,
+  SUM(o.order_amount) AS monetary_value
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+GROUP BY c.customer_id, c.name
+ORDER BY recency_days ASC;
+
+--Final RFM Scores + Segment Query
+
+SELECT
+  c.customer_id,
+  c.name,
+  DATEDIFF('2024-07-01', MAX(o.order_date)) AS recency_days,
+  COUNT(o.order_id) AS frequency,
+  SUM(o.order_amount) AS monetary_value,
+
+  -- RFM Scores
+  CASE 
+    WHEN DATEDIFF('2024-07-01', MAX(o.order_date)) <= 15 THEN 5
+    WHEN DATEDIFF('2024-07-01', MAX(o.order_date)) <= 30 THEN 4
+    WHEN DATEDIFF('2024-07-01', MAX(o.order_date)) <= 45 THEN 3
+    WHEN DATEDIFF('2024-07-01', MAX(o.order_date)) <= 60 THEN 2
+    ELSE 1
+  END AS r_score,
+
+  CASE 
+    WHEN COUNT(o.order_id) >= 5 THEN 5
+    WHEN COUNT(o.order_id) >= 3 THEN 4
+    WHEN COUNT(o.order_id) = 2 THEN 3
+    WHEN COUNT(o.order_id) = 1 THEN 2
+    ELSE 1
+  END AS f_score,
+
+  CASE 
+    WHEN SUM(o.order_amount) >= 6000 THEN 5
+    WHEN SUM(o.order_amount) >= 4000 THEN 4
+    WHEN SUM(o.order_amount) >= 2000 THEN 3
+    WHEN SUM(o.order_amount) >= 1000 THEN 2
+    ELSE 1
+  END AS m_score,
+
+  -- Combined RFM code
+  CONCAT(
+    CASE 
+      WHEN DATEDIFF('2024-07-01', MAX(o.order_date)) <= 15 THEN '5'
+      WHEN DATEDIFF('2024-07-01', MAX(o.order_date)) <= 30 THEN '4'
+      WHEN DATEDIFF('2024-07-01', MAX(o.order_date)) <= 45 THEN '3'
+      WHEN DATEDIFF('2024-07-01', MAX(o.order_date)) <= 60 THEN '2'
+      ELSE '1'
+    END,
+    CASE 
+      WHEN COUNT(o.order_id) >= 5 THEN '5'
+      WHEN COUNT(o.order_id) >= 3 THEN '4'
+      WHEN COUNT(o.order_id) = 2 THEN '3'
+      WHEN COUNT(o.order_id) = 1 THEN '2'
+      ELSE '1'
+    END,
+    CASE 
+      WHEN SUM(o.order_amount) >= 6000 THEN '5'
+      WHEN SUM(o.order_amount) >= 4000 THEN '4'
+      WHEN SUM(o.order_amount) >= 2000 THEN '3'
+      WHEN SUM(o.order_amount) >= 1000 THEN '2'
+      ELSE '1'
+    END
+  ) AS rfm_score,
+
+  -- Segment Label
+  CASE 
+    WHEN 
+      DATEDIFF('2024-07-01', MAX(o.order_date)) <= 15 AND
+      COUNT(o.order_id) >= 3 AND
+      SUM(o.order_amount) >= 5000 THEN 'Champion'
+
+    WHEN 
+      DATEDIFF('2024-07-01', MAX(o.order_date)) <= 30 AND
+      COUNT(o.order_id) >= 2 THEN 'Loyal Customer'
+
+    WHEN 
+      DATEDIFF('2024-07-01', MAX(o.order_date)) > 60 AND
+      COUNT(o.order_id) = 1 THEN 'At-Risk'
+
+    ELSE 'Others'
+  END AS customer_segment
+
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+GROUP BY c.customer_id, c.name
+ORDER BY rfm_score DESC;
+
+
+
+
+
